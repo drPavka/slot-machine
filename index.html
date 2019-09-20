@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Slot Machine</title>
+    <script type="text/javascript" src="js/EventEmitter.min.js"></script>
+    <script type="text/javascript" src="js/winning_algorithm.js"></script>
+    <script type="text/javascript" src="js/js.js"></script>
+    <script type="text/javascript" src="js/init.js"></script>
+    <script type="text/javascript">
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</head>
+<body>
+<header></header>
+<main>
+    <section id="reels" data-bind="Reels"></section>
+    <section id="pay-table">
+        <table data-bind="Pay_Table"></table>
+    </section>
+    <section id="spin-container">
+        <button data-bind="Spin_Button">Start</button>
+    </section>
+    <section id="balance-container">
+        <input type="number" data-bind="Balance_Inbox">
+    </section>
+    <aside id="debug"></aside>
+</main>
+</body>
+</html>
