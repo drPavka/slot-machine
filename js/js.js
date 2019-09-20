@@ -1,68 +1,53 @@
 const START_BALANCE = 1000;
-
-
-let _;
-/**
- * @var reels Reels
- */
-
-/**
- * @var spin_button Spin_Button
- */
-/**
- * @var balance Balance
- */
-
-
-
+const SPIN_COST = 1;
 
 //Components
-function Reels() {
+function Reels($container) {
 
 }
 
 Reels.prototype.start = function () {
     let reels_result = new Combination();
-    console.debug('reels started')
+    console.debug('reels started');
     this.emit('start');
 
-    console.debug('reels rolling completed')
+    console.debug('reels rolling completed');
     this.emitEvent('complete', reels_result);
-}
+};
 
 Object.assign(Reels.prototype, EventEmitter.prototype);
 
 function Spin_Button(container) {
     this.$ = container;
-
-}
-
-Spin_Button.prototype.init = function () {
     this.$.addEventListener('click', () => {
         console.debug('spin button click');
-        reels.start();
+        this.emit('click');
     })
 }
 
 Object.assign(Spin_Button.prototype, EventEmitter.prototype);
 
-class Pay_Table {
+function Pay_Table($container) {
 
 }
 
+Object.assign(Pay_Table.prototype, EventEmitter.prototype);
+
 function Balance_Inbox(container) {
     this.container = container;
+    this.container.addEventListener('input', (event) => {
+        this.emit('adjust', parseInt(event.target.value))
+    })
 }
 
 Object.assign(Balance_Inbox.prototype, EventEmitter.prototype);
 Balance_Inbox.prototype.init = function () {
-    _.get_balance().on('change', (balance) => {
-        this.container.value = balance;
-    });
-    this.container.addEventListener('input', (event) => {
-        _.get_balance().force(parseInt(event.target.value));
-    })
-}
+
+};
+
+Balance_Inbox.prototype.set = function (value) {
+    this.container.value = value;
+};
 
 //Models
 
@@ -84,31 +69,35 @@ class Balance {
 
     constructor(initial_balance) {
         this.#value = initial_balance;
+
     }
 
     init() {
         console.debug('initial change balance event triggered');
-        this.emit('change', this.value);
-
-        reels.on('start', () => {
-            console.debug('decrease balance');
-            this.#value--;
-            console.debug('change balance event triggered')
-            this.emit('change', this.#value)
+        this.on('change', () => {
+            if (!this.#value) {
+                this.emit('finish');
+            }
         });
+        this.emit('change', this.#value);
+    }
 
-        reels.on('complete', (combination) => {
-            console.debug('maybe increase balance');
+    increase(value) {
+        this.#value += value;
+        console.debug('increase balance on %s', value);
+        this.emit('change', this.#value)
+    }
 
-            console.debug('change balance event triggered')
-            this.emit('change', this.#value)
-        });
+    decrease(value) {
+        this.#value -= value;
+        console.debug('decrease balance on %s', value);
+        this.emit('change', this.#value)
     }
 
     force(value) {
         //force doesn't trigger event because there shouldn't be any reaction
         console.debug('force balance value to %s', value);
-        this.value = value;
+        this.#value = value;
     }
 
 }
@@ -128,9 +117,14 @@ class SlotMachine {
      * @var WinningAlgorithm
      */
     #winning_algorithm;
+    /**
+     * @var #balance Balance
+     */
+    #balance;
 
     constructor(balance) {
-        balance.init();
+        this.#balance = balance;
+
     }
 
     /**
@@ -152,8 +146,34 @@ class SlotMachine {
         this.#reels_algorithm = reels_algorithm;
     }
 
-    init() {
+    /**
+     *
+     * @param reels Reels
+     * @param start_button Spin_Button
+     * @param pay_table Pay_Table
+     * @param balance_inbox Balance_Inbox
+     */
+    init(reels, start_button, pay_table, balance_inbox) {
 
+        this.#balance.on('change', balance_inbox.set.bind(balance_inbox));
+        this.#balance.on('finish', this.finish.bind(this));
+        this.#balance.init();
+        balance_inbox.on('adjust', this.#balance.force.bind(this.#balance));
+        start_button.on('click', reels.start.bind(reels));
+        reels.on('start', this.#balance.decrease.bind(this.#balance, SPIN_COST));
+
+        reels.on('complete', (combination) => {
+            //@todo implement
+            /*console.debug('maybe increase balance');
+
+            console.debug('change balance event triggered')
+            this.emit('change', this.#value)*/
+        });
+
+    }
+    finish(){
+        //@todo block all components
+        console.log('Game is over');
     }
 }
 
