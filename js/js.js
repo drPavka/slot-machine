@@ -1,18 +1,52 @@
 const START_BALANCE = 1000;
 const SPIN_COST = 1;
 
+
+const BARx3 = 0;
+const BAR = 1;
+const BARx2 = 2;
+const SEVEN = 3;
+const CHERRY = 4;
+
+const TOP = 0;
+const CENTER = 1;
+const BOTTOM = 2;
+
+
 //Components
 function Reels($container) {
 
 }
 
+/**
+ * @emits start
+ * @emits complete
+ */
 Reels.prototype.start = function () {
-    let reels_result = new Combination();
+    let reels_result = [
+        new Combination([
+            {line: TOP, symbols: new Row(CHERRY, CHERRY, CHERRY)},
+            {line: CENTER, symbols: new Row(SEVEN, BAR, BAR)},
+            {line: BOTTOM, symbols: new Row(CHERRY, SEVEN, BAR)}
+        ]),
+        new Combination([
+            {line: CENTER, symbols: new Row(CHERRY, SEVEN, CHERRY)},
+            {line: TOP, symbols: new Row(SEVEN, BAR, BAR)},
+            {line: BOTTOM, symbols: new Row(CHERRY, SEVEN, BAR)}
+        ]),
+        new Combination([
+            {line: CENTER, symbols: new Row(BAR, SEVEN, CHERRY)},
+            {line: TOP, symbols: new Row(SEVEN, BAR, BAR)},
+            {line: BOTTOM, symbols: new Row(BARx2, SEVEN, BAR)}
+        ]),
+
+    ];
     console.debug('reels started');
     this.emit('start');
 
     console.debug('reels rolling completed');
-    this.emitEvent('complete', reels_result);
+    let result = reels_result[Math.floor(Math.random() * Math.floor(reels_result.length))];
+    this.emit('complete', result);
 };
 
 Object.assign(Reels.prototype, EventEmitter.prototype);
@@ -34,11 +68,20 @@ function Pay_Table($container) {
 Object.assign(Pay_Table.prototype, EventEmitter.prototype);
 /**
  *
- * @param winning_combination WinningCombination
+ * @param winning_combination {WinningCombination}
  */
-Pay_Table.prototype.add = function(winning_combination){
-    this.container.appendChild(document.createElement('tr'));
-}
+Pay_Table.prototype.add = function (winning_combination) {
+    const tr = document.createElement('tr');
+    this.container.appendChild(tr);
+    let td = document.createElement('td');
+    td.innerText = winning_combination.symbols;
+    tr.appendChild(td);
+
+    td = document.createElement('td');
+    td.innerText = winning_combination.cost;
+    tr.appendChild(td);
+};
+
 function Balance_Inbox(container) {
     this.container = container;
     this.container.addEventListener('input', (event) => {
@@ -56,22 +99,96 @@ Balance_Inbox.prototype.set = function (value) {
 };
 
 //Models
+class Row {
+    #value;
+
+    /**
+     *
+     * @param symbols {BAR | BARx3 | BARx2 | SEVEN | CHERRY}
+     */
+    constructor(...symbols) {
+        if (symbols.length !== 3) throw new Error('Wrong row format');
+        this.#value = symbols;
+    }
+
+    toString() {
+        return this.#value.join('');
+    }
+}
 
 class Combination {
-    #current;
+    #data = [];
 
-    set value(combination_array) {
+    /**
+     *
+     * @param data {[{"line":TOP | BOTTOM | CENTER, "symbols":Row}]}
+     */
+    constructor(data) {
+        if (data.length !== 3) throw new Error('Wrong combination format');
+        data.forEach((row) => {
+            this.#data[row.line] = row.symbols;
+        })
+    }
 
+    toString() {
+        return this.#data.reduce(
+            /**
+             *
+             * @param acc string
+             * @param row Row
+             */
+            (acc, row) => {
+                return acc + row + "\n"
+            }
+            , '');
+    }
+
+    /**
+     *
+     * @param line {TOP|BOTTOM|CENTER}
+     * @return {Row}
+     */
+    get(line) {
+        //@todo validate line
+        return this.#data[line];
     }
 }
 
 class WinningCombination {
-    load(combination){}
-    get cost(){
+    /**
+     * @var {Row}
+     */
+    #symbols;
+    /**
+     * @var {number}
+     */
+    #cost;
 
+    //@todo maybe we should store winning pattern here too??
+    /**
+     *
+     * @param symbols {Row}
+     * @param cost {number}
+     */
+    constructor(symbols, cost) {
+        this.#symbols = symbols;
+        this.#cost = cost;
     }
-    get symbols(){
 
+    /**
+     *
+     * @return {number}
+     */
+    get cost() {
+        return this.#cost;
+    }
+
+    /**
+     *
+     * @return {Row}
+     */
+    get symbols() {
+        return this.#symbols;
     }
 }
 
@@ -122,15 +239,15 @@ class Reels_Algorithm {
 
 class SlotMachine {
     /**
-     * @var Reels_Algorithm
+     * @var {Reels_Algorithm}
      */
     #reels_algorithm;
     /**
-     * @var WinningAlgorithm
+     * @var {WinningAlgorithm}
      */
     #winning_algorithm;
     /**
-     * @var #balance Balance
+     * @var {Balance}
      */
     #balance;
 
@@ -141,7 +258,7 @@ class SlotMachine {
 
     /**
      * @desc if is not set - there will be no win ever, but this is not an error
-     * @param winning_algorithm
+     * @param winning_algorithm {WinningAlgorithm}
      */
     set winning_algorithm(winning_algorithm) {
         //@todo - validate
@@ -151,7 +268,7 @@ class SlotMachine {
     /**
      *
      * @desc If is not set  - then random order
-     * @param reels_algorithm
+     * @param reels_algorithm {Reels_Algorithm}
      */
     set reels_algorithm(reels_algorithm) {
         //@todo  - validate
@@ -160,10 +277,10 @@ class SlotMachine {
 
     /**
      *
-     * @param reels Reels
-     * @param start_button Spin_Button
-     * @param pay_table Pay_Table
-     * @param balance_inbox Balance_Inbox
+     * @param reels {Reels}
+     * @param start_button {Spin_Button}
+     * @param pay_table {Pay_Table}
+     * @param balance_inbox {Balance_Inbox}
      */
     init(reels, start_button, pay_table, balance_inbox) {
 
@@ -175,29 +292,28 @@ class SlotMachine {
         reels.on('start', this.#balance.decrease.bind(this.#balance, SPIN_COST));
 
         reels.on('complete', (combination) => {
-            //@todo analyze combination, get winning combination, change balance, redraw pay_table
-            if(false){
-                //increase balance by wininnig combination cost
-                this.#balance.increase(1);
-                //add wininnig combination to pay_table
-                pay_table.add(1)
-            }
-            /*console.debug('maybe increase balance');
 
-            console.debug('change balance event triggered')
-            this.emit('change', this.#value)*/
+            //@todo analyze combination, get winning combination, change balance, redraw pay_table
+            let r = this.#winning_algorithm.check(combination);
+
+            if (r) {
+                //increase balance by wininnig combination cost
+                this.#balance.increase(r.cost);
+                //add wininnig combination to pay_table
+                pay_table.add(r)
+            }
         });
 
     }
-    finish(){
+
+    /**
+     * Ends the game
+     */
+    finish() {
         //@todo block all components
         console.log('Game is over');
     }
-    analyze(combination){
-        //@todo finish check
-        let result = this.#winning_algorithm.check({combination});
-        return result;
-    }
+
 }
 
 

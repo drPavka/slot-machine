@@ -1,12 +1,7 @@
-const BARx3 = 0;
-const BAR = 1;
-const BARx2 = 2;
-const SEVEN = 3;
-const CHERRY = 4;
-
-const TOP = 0;
-const CENTER = 1;
-const BOTTOM = 2;
+class WinRule {
+    line;
+    symbols;
+}
 
 class WinningAlgorithm {
     #algorithms = [];
@@ -15,6 +10,13 @@ class WinningAlgorithm {
 
     }
 
+    /**
+     *
+     * @param line {TOP | CENTER | BOTTOM}
+     * @param symbols {RegExp}
+     * @param cost {Number}
+     */
+    //@todo array should be sorted in descending order after add
     add(line, symbols, cost) {
         this.#algorithms.push(
             {
@@ -22,20 +24,40 @@ class WinningAlgorithm {
             }
         )
     }
-    check(line, symbols){
+
+    /**
+     * Check if there any winning combination in combination
+     * @param combinations {Combination}
+     * @return {WinningCombination | null}
+     */
+    check(combinations) {
         let result = null;
-        if(this.#algorithms.some(()=>{})){
-            result = {line, symbols, cost}
+        for (let {line, symbols, cost} of this.#algorithms) {
+            if (line !== null) {
+                if (symbols.test('' + combinations.get(line))) {
+                    result = new WinningCombination(combinations.get(line), cost);
+                    break;
+                }
+            } else {
+                let r;
+                //@ignore
+                if (r = symbols.exec('' + combinations)) {
+                    //call constructor with variable arguments length
+                    //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind
+                    let args = r[0].split('');
+                    //@todo why without this it doesn't work and lost first param????
+                    args.unshift(null);
+                    let row = new (Function.prototype.bind.apply(Row, args));
+
+                    result = new WinningCombination(row, cost);
+                    break;
+                }
+            }
+
         }
 
         return result;
     }
 
 }
-/*
 
-function analyze(winning_algorithm) {
-    //winning combination
-    return;
-}
-*/

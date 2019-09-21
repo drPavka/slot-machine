@@ -3,16 +3,18 @@ let slot_machine;
 const init = () => {
     //moved here to be visible
     const winning_algorithm = new WinningAlgorithm();
-    winning_algorithm.add(TOP, [CHERRY, CHERRY, CHERRY], 2000);
-    winning_algorithm.add(CENTER, [CHERRY, CHERRY, CHERRY], 1000);
-    winning_algorithm.add(BOTTOM, [CHERRY, CHERRY, CHERRY], 4000);
-    winning_algorithm.add(null, [SEVEN, SEVEN, SEVEN], 150);
-    winning_algorithm.add(null, [CHERRY, SEVEN], 75);
-    winning_algorithm.add(null, [BARx3, BARx3, BARx3], 50);
-    winning_algorithm.add(null, [BARx2, BARx2, BARx2], 20);
-    winning_algorithm.add(null, [BAR, BAR, BAR], 10);
-    //@todo Combination of any BAR symbols on any line - 5
+    winning_algorithm.add(BOTTOM, new RegExp([CHERRY, CHERRY, CHERRY].join('')), 4000);
+    winning_algorithm.add(TOP, new RegExp([CHERRY, CHERRY, CHERRY].join('')), 2000);
+    winning_algorithm.add(CENTER, new RegExp([CHERRY, CHERRY, CHERRY].join('')), 1000);
 
+    //@todo  - if line === NULL regexp should be complicated with start and end symbols
+    winning_algorithm.add(null, new RegExp("^" + [SEVEN, SEVEN, SEVEN].join('') + "$"), 150);
+    //@todo  - any combination of CHERRY and 7  - does it mean reverse order too?
+    winning_algorithm.add(null, new RegExp('^\\d?' + [CHERRY, SEVEN].join('') + '\\d?$', "m"), 75);
+    winning_algorithm.add(null, new RegExp("^" + [BARx3, BARx3, BARx3].join('') + "$"), 50);
+    winning_algorithm.add(null, new RegExp("^" + [BARx2, BARx2, BARx2].join('') + "$"), 20);
+    winning_algorithm.add(null, new RegExp("^" + [BAR, BAR, BAR].join('') + "$"), 10);
+    //@todo Combination of any BAR symbols on any line - 5
 
 
     //create componenta class instances
