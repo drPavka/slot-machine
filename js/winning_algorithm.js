@@ -1,8 +1,3 @@
-class WinRule {
-    line;
-    symbols;
-}
-
 class WinningAlgorithm {
     #algorithms = [];
 
@@ -55,7 +50,9 @@ class WinningAlgorithm {
             }
 
         }
-
+        if (!result) {
+            console.debug('No winning combinations found');
+        }
         return result;
     }
 
