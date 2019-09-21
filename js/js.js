@@ -28,11 +28,17 @@ function Spin_Button(container) {
 Object.assign(Spin_Button.prototype, EventEmitter.prototype);
 
 function Pay_Table($container) {
-
+    this.container = $container;
 }
 
 Object.assign(Pay_Table.prototype, EventEmitter.prototype);
-
+/**
+ *
+ * @param winning_combination WinningCombination
+ */
+Pay_Table.prototype.add = function(winning_combination){
+    this.container.appendChild(document.createElement('tr'));
+}
 function Balance_Inbox(container) {
     this.container = container;
     this.container.addEventListener('input', (event) => {
@@ -60,7 +66,13 @@ class Combination {
 }
 
 class WinningCombination {
+    load(combination){}
+    get cost(){
 
+    }
+    get symbols(){
+
+    }
 }
 
 
@@ -163,7 +175,13 @@ class SlotMachine {
         reels.on('start', this.#balance.decrease.bind(this.#balance, SPIN_COST));
 
         reels.on('complete', (combination) => {
-            //@todo implement
+            //@todo analyze combination, get winning combination, change balance, redraw pay_table
+            if(false){
+                //increase balance by wininnig combination cost
+                this.#balance.increase(1);
+                //add wininnig combination to pay_table
+                pay_table.add(1)
+            }
             /*console.debug('maybe increase balance');
 
             console.debug('change balance event triggered')
@@ -174,6 +192,11 @@ class SlotMachine {
     finish(){
         //@todo block all components
         console.log('Game is over');
+    }
+    analyze(combination){
+        //@todo finish check
+        let result = this.#winning_algorithm.check({combination});
+        return result;
     }
 }
 

@@ -22,10 +22,20 @@ class WinningAlgorithm {
             }
         )
     }
+    check(line, symbols){
+        let result = null;
+        if(this.#algorithms.some(()=>{})){
+            result = {line, symbols, cost}
+        }
+
+        return result;
+    }
 
 }
+/*
 
 function analyze(winning_algorithm) {
     //winning combination
     return;
 }
+*/
