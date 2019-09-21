@@ -2,54 +2,8 @@ const START_BALANCE = 1000;
 const SPIN_COST = 1;
 
 
-const BARx3 = 0;
-const BAR = 1;
-const BARx2 = 2;
-const SEVEN = 3;
-const CHERRY = 4;
-
-const TOP = 0;
-const CENTER = 1;
-const BOTTOM = 2;
-
-
 //Components
-function Reels($container) {
 
-}
-
-/**
- * @emits start
- * @emits complete
- */
-Reels.prototype.start = function () {
-    let reels_result = [
-        new Combination([
-            {line: TOP, symbols: new Row(CHERRY, CHERRY, CHERRY)},
-            {line: CENTER, symbols: new Row(SEVEN, BAR, BAR)},
-            {line: BOTTOM, symbols: new Row(CHERRY, SEVEN, BAR)}
-        ]),
-        new Combination([
-            {line: CENTER, symbols: new Row(CHERRY, SEVEN, CHERRY)},
-            {line: TOP, symbols: new Row(SEVEN, BAR, BAR)},
-            {line: BOTTOM, symbols: new Row(CHERRY, SEVEN, BAR)}
-        ]),
-        new Combination([
-            {line: CENTER, symbols: new Row(BAR, SEVEN, CHERRY)},
-            {line: TOP, symbols: new Row(SEVEN, BAR, BAR)},
-            {line: BOTTOM, symbols: new Row(BARx2, SEVEN, BAR)}
-        ]),
-
-    ];
-    console.debug('reels started');
-    this.emit('start');
-
-    console.debug('reels rolling completed');
-    let result = reels_result[Math.floor(Math.random() * Math.floor(reels_result.length))];
-    this.emit('complete', result);
-};
-
-Object.assign(Reels.prototype, EventEmitter.prototype);
 
 function Spin_Button(container) {
     this.$ = container;
