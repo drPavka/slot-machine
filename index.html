@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <title>Slot Machine</title>
+    <link href="css/reset.css" rel="stylesheet" type="text/css">
+    <link href="css/reels.css" rel="stylesheet" type="text/css">
+
     <script type="text/javascript" src="js/EventEmitter.min.js"></script>
     <script type="text/javascript" src="js/winning_algorithm.js"></script>
     <script type="text/javascript" src="js/js.js"></script>
@@ -14,7 +17,9 @@
 <body>
 <header></header>
 <main>
-    <section id="reels" data-bind="Reels"></section>
+    <section id="stage">
+        <div data-bind="Reels" id="reels"></div>
+    </section>
     <section id="pay-table">
         <table border="1" data-bind="Pay_Table"></table>
     </section>

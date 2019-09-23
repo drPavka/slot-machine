@@ -1,0 +1,43 @@
+html, body {
+    height: 100%;
+}
+
+#stage {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 30em;
+}
+
+#reels {
+    display: flex;
+    flex-direction: row;
+    height: 300px;
+    overflow-y: hidden;
+    border: 2px solid gray;
+    border-radius: 5px;
+}
+
+.reel {
+
+    display: flex;
+    flex-direction: column;
+    transform: translateY(-20px);
+}
+
+@keyframes example {
+
+    from {
+        transform: translateY(0);
+    }
+    to {
+        transform: translateY(-121px);
+    }
+}
+
+/*.reel img.a {
+    animation-name: example;
+    animation-duration: 5s;
+
+    !*animation-fill-mode: forwards;*!
+}*/

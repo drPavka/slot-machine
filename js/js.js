@@ -15,7 +15,40 @@ const BOTTOM = 2;
 
 //Components
 function Reels($container) {
+    let reels = [];
+    Array.from(Array(3).keys()).forEach((index) => {
+        let reel_container = document.createElement('div');
 
+        let reel = document.createElement('div');
+        reel.className = 'reel';
+        reels.push(reel);
+        reel_container.appendChild(reel);
+
+        Array.from(Array(Images.length).keys()).forEach((index) => {
+            reel.appendChild(Images.getImageByIndex(index));
+        });
+        $container.appendChild(reel_container);
+    });
+
+    this.getReelContainer = (index) => {
+        return reels[index];
+    };
+    this.getReelContainer(0).addEventListener('animationend', (event) => {
+        console.log('+++++++++++++');
+        if (event.target === this.getReelContainer(0).querySelector('img:last-child')) {
+            let i = this.getReelContainer(0).querySelector('img:first-child');
+            this.getReelContainer(0).appendChild(i);
+        }
+        this.getReelContainer(0).querySelectorAll('img').forEach($ => {
+            $.style = '';
+            $.style.animationName = 'example';
+            $.style.animationDuration = '2s';
+            $.style.animationFillMode = 'both';
+
+        })
+
+
+    })
 }
 
 /**
@@ -43,6 +76,12 @@ Reels.prototype.start = function () {
     ];
     console.debug('reels started');
     this.emit('start');
+    this.getReelContainer(0).querySelectorAll('img').forEach($ => {
+        $.style.animationName = 'example';
+        $.style.animationDuration = '2s';
+        $.style.animationFillMode = 'both';
+
+    });
 
     console.debug('reels rolling completed');
     let result = reels_result[Math.floor(Math.random() * Math.floor(reels_result.length))];
@@ -99,6 +138,27 @@ Balance_Inbox.prototype.set = function (value) {
 };
 
 //Models
+class Images {
+    static #images = [
+        '3xBAR',
+        'BAR',
+        '2xBAR',
+        '7',
+        'Cherry'
+    ];
+
+    static get length() {
+        return Images.#images.length;
+    }
+
+    static getImageByIndex(index) {
+        //@todo check validity
+        const img = document.createElement('img');
+        img.src = 'img/' + Images.#images[index] + '.png';
+        return img;
+    }
+}
+
 class Row {
     #value;
 
